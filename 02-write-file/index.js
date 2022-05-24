@@ -19,21 +19,24 @@
 const path = require('path').join(__dirname, 'hello.txt');
 const fs = require('fs');
 const readline = require('readline');
-
+const writeableStream = fs.createWriteStream(path, 'utf-8');
 const rl = readline.createInterface({ 
     input: process.stdin,
     output: process.stdout,
 });
-let writeableStream = fs.createWriteStream(path, 'utf-8');
-rl.question("Write your greeting, please\n", (input) => {
-        if(input === "") return console.log("You didn't provide your greeting");
+function question() {
+    rl.question("Write your greeting, please\n", (input) => {
+        if(input === 'exit') rl.close();
         else {
-            rl.on("line", () => {
-                writeableStream.write(input);
-            });
+            writeableStream.write(input +'\n');
+            question();
         };
-        rl.on("close", () => {
-        console.log("Bye, have a good time");
-    });
 });
 
+}
+
+rl.on("close", () => {
+    rl.output.write("Bye, have a good time");
+});
+fs.promises.writeFile(path, '');
+question();
